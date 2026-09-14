@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="night">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>《最喜欢的课》HTML 课件样张</title>
+<style>
+  :root {
+    --title: 74px;
+    --title2: 46px;
+    --body: 30px;
+    --small: 19px;
+    --radius: 18px;
+    --font: "Microsoft YaHei", "微软雅黑", sans-serif;
+  }
+
+  html[data-theme="night"] {
+    --bg1: #16233c; --bg2: #1e2f52;
+    --fg: #ffffff; --muted: #9fb0cd;
+    --accent: #ffc845; --accent-fg: #1b2a4a;
+    --card: rgba(255,255,255,.075);
+    --card-line: rgba(255,255,255,.16);
+    --star: rgba(255,200,69,.55);
+  }
+  html[data-theme="lamp"] {
+    --bg1: #2b231d; --bg2: #3a2e24;
+    --fg: #f7efe1; --muted: #c0ab92;
+    --accent: #e8b96a; --accent-fg: #2b231d;
+    --card: rgba(255,240,220,.075);
+    --card-line: rgba(255,225,190,.18);
+    --star: rgba(232,185,106,.45);
+  }
+  html[data-theme="class"] {
+    --bg1: #f8f5ee; --bg2: #efeaf0;
+    --fg: #1f2b45; --muted: #6f7b91;
+    --accent: #e29b2b; --accent-fg: #ffffff;
+    --card: #ffffff;
+    --card-line: #e4dfd3;
+    --star: rgba(226,155,43,.32);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg1);
+    color: var(--fg);
+    overflow: hidden;
+    height: 100vh;
+    transition: background .35s ease, color .35s ease;
+  }
+
+  /* ---------- 风格切换器 ---------- */
+  .switcher {
+    position: fixed; top: 18px; right: 22px; z-index: 50;
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(127,127,127,.14);
+    border: 1px solid rgba(127,127,127,.22);
+    border-radius: 999px; padding: 6px 10px 6px 14px;
+    backdrop-filter: blur(6px);
+  }
+  .switcher .lbl { font-size: 12px; color: var(--muted); letter-spacing: .5px; }
+  .switcher button {
+    font-family: var(--font); font-size: 13px; cursor: pointer;
+    border: none; border-radius: 999px; padding: 6px 13px;
+    background: transparent; color: var(--fg); opacity: .68;
+    transition: all .2s ease;
+  }
+  .switcher button:hover { opacity: 1; }
+  .switcher button.on {
+    background: var(--accent); color: var(--accent-fg);
+    opacity: 1; font-weight: 700;
+  }
+
+  /* ---------- 舞台 ---------- */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column;
+    justify-content: center;
+    padding: 7vh 8vw;
+    background: radial-gradient(120% 100% at 50% 0%, var(--bg2) 0%, var(--bg1) 62%);
+    transition: background .35s ease;
+  }
+  .slide.on { display: flex; }
+
+  .dots { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .dots i {
+    position: absolute; display: block; border-radius: 50%;
+    background: var(--star);
+  }
+
+  /* 封面 */
+  .kicker {
+    font-size: var(--small); letter-spacing: 3px;
+    color: var(--accent); margin-bottom: 26px; font-weight: 700;
+  }
+  .cover-title {
+    font-size: var(--title); font-weight: 700; line-height: 1.18;
+    letter-spacing: 2px;
+  }
+  .cover-rule {
+    width: 92px; height: 5px; border-radius: 3px;
+    background: var(--accent); margin: 30px 0 26px;
+  }
+  .cover-sub { font-size: 34px; color: var(--muted); line-height: 1.6; }
+
+  /* 内容页 */
+  .head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+  .num {
+    width: 62px; height: 62px; border-radius: 50%; flex: none;
+    background: var(--accent); color: var(--accent-fg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 700;
+  }
+  .h-title { font-size: var(--title2); font-weight: 700; }
+  .h-sub { font-size: var(--small); color: var(--muted); margin: 6px 0 34px 80px; }
+
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius);
+    padding: 30px 24px 32px;
+    opacity: 0; transform: translateY(26px);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1);
+  }
+  .card.show { opacity: 1; transform: translateY(0); }
+  .c-t { font-size: 30px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+  .c-b { font-size: var(--body); line-height: 1.55; color: var(--fg); }
+
+  .foot {
+    margin-top: 34px; font-size: var(--small); color: var(--muted);
+    opacity: 0; transition: opacity .5s ease;
+  }
+  .foot.show { opacity: 1; }
+
+  /* 提示 */
+  .hint {
+    position: fixed; bottom: 26px; left: 0; right: 0; text-align: center;
+    font-size: 15px; color: var(--muted); z-index: 40;
+    letter-spacing: 1px; user-select: none;
+  }
+  .hint span { opacity: .85; }
+  .bar { position: fixed; left: 0; bottom: 0; height: 3px; background: var(--accent); width: 0; transition: width .3s ease; z-index: 41; }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <span class="lbl">风格</span>
+  <button data-t="night" class="on">深夜星空</button>
+  <button data-t="lamp">台灯暖纸</button>
+  <button data-t="class">明亮教室</button>
+</div>
+
+<div class="deck">
+
+  <!-- ========== 第 1 屏 · 封面 ========== -->
+  <section class="slide on" data-slide="0">
+    <div class="dots" aria-hidden="true"></div>
+    <div class="kicker">四年级 · 心理健康教育 · 第 1 课</div>
+    <h1 class="cover-title">最喜欢的课</h1>
+    <div class="cover-rule"></div>
+    <div class="cover-sub">承认有不喜欢，并学会对待它</div>
+  </section>
+
+  <!-- ========== 第 2 屏 · 内容页（点击揭示） ========== -->
+  <section class="slide" data-slide="1">
+    <div class="dots" aria-hidden="true"></div>
+    <div class="head">
+      <div class="num">3</div>
+      <div class="h-title">喜欢，是有理由的</div>
+    </div>
+    <div class="h-sub">环节三 · 说理由（8 分钟）</div>
+
+    <div class="grid">
+      <div class="card"><div class="c-t">有意思</div><div class="c-b">上课像在玩，<br>不知不觉就下课了</div></div>
+      <div class="card"><div class="c-t">有成就感</div><div class="c-b">我做出来了，<br>我真棒</div></div>
+      <div class="card"><div class="c-t">有人陪</div><div class="c-b">有好朋友一起上，<br>还有老师夸我</div></div>
+      <div class="card"><div class="c-t">有用处</div><div class="c-b">学了马上能用，<br>生活里真的用得上</div></div>
+    </div>
+
+    <div class="foot">教师：把学生说出的理由，归到这四栏里板书</div>
+  </section>
+
+</div>
+
+<div class="hint"><span id="hintTxt">点击屏幕继续 ▸</span></div>
+<div class="bar" id="bar"></div>
+
+<script>
+  var themeBtns = document.querySelectorAll('.switcher button');
+  themeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.documentElement.setAttribute('data-theme', b.dataset.t);
+      themeBtns.forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      paintDots();
+    });
+  });
+
+  // 装饰星点
+  function paintDots() {
+    var on = document.querySelector('.slide.on .dots');
+    if (!on) return;
+    on.innerHTML = '';
+    var seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var sz = 2 + Math.round(rnd() * 4);
+      s.style.width = sz + 'px';
+      s.style.height = sz + 'px';
+      s.style.left = (rnd() * 96 + 2) + '%';
+      s.style.top = (rnd() * 92 + 2) + '%';
+      s.style.opacity = 0.25 + rnd() * 0.5;
+      on.appendChild(s);
+    }
+  }
+
+  var slides = document.querySelectorAll('.slide');
+  var state = { i: 0, reveal: 0 };
+  var cards = document.querySelectorAll('[data-slide="1"] .card');
+  var foot = document.querySelector('[data-slide="1"] .foot');
+  var total = cards.length + 1;              // 4 张卡 + 1 条页脚
+  var deckLen = slides.length;
+
+  function render() {
+    slides.forEach(function (s, k) { s.classList.toggle('on', k === state.i); });
+    cards.forEach(function (c, k) { c.classList.toggle('show', state.i === 1 && k < state.reveal); });
+    foot.classList.toggle('show', state.i === 1 && state.reveal >= cards.length + 1);
+    paintDots();
+
+    var done = 0;
+    if (state.i === 0) done = 1; else done = 1 + state.reveal;
+    document.getElementById('bar').style.width = (done / (deckLen + total - 1) * 100) + '%';
+
+    if (state.i === 0) {
+      document.getElementById('hintTxt').textContent = '点击屏幕继续 ▸';
+    } else if (state.reveal < cards.length + 1) {
+      document.getElementById('hintTxt').textContent = '点击屏幕，再出现一块 ▸';
+    } else {
+      document.getElementById('hintTxt').textContent = '（样张到此结束）';
+    }
+  }
+
+  function advance() {
+    if (state.i === 0) { state.i = 1; state.reveal = 0; }
+    else if (state.reveal < cards.length + 1) { state.reveal++; }
+    render();
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.switcher')) return;
+    advance();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); advance(); }
+    if (e.key === 'ArrowLeft') { state.i = 0; state.reveal = 0; render(); }
+  });
+
+  render();
+</script>
+</body>
+</html>
